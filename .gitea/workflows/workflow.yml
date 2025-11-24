@@ -1,0 +1,38 @@
+name: Android Test
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate-and-test:
+    runs-on: generic
+    steps:
+      - name: Checkout PR code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Validate allowed changes
+        run: |
+          python3 /opt/scripts/validate-changes.py
+        env:
+          GITEA_REPOSITORY: ${{ gitea.repository }}
+          GITEA_BASE_REF: ${{ gitea.event.pull_request.base.ref }}
+          GITEA_HEAD_REF: ${{ gitea.event.pull_request.head.ref }}
+
+      - name: Checkout tests
+        run: python3 /opt/scripts/copy-tests.py --repo-url "Olympic/NTO-2025-Android-TeamTask-tests" --branch "main" --task-type "spring"
+
+      - name: Run tests
+        run: mvn test
+
+      - name: Upload test results
+        uses: christopherHX/gitea-upload-artifact@v4
+        with:
+          name: test-results
+          path: target/surefire-reports
+          if-no-files-found: ignore
+          retention-days: 30
+        if: always()
