@@ -1,5 +1,9 @@
 package com.example.nto.service;
 
+import com.example.nto.entity.Employee;
+
+import java.util.Optional;
+
 /**
  * TODO: ДОРАБОТАТЬ в рамках задания
  * =================================
@@ -7,4 +11,6 @@ package com.example.nto.service;
  * НЕЛЬЗЯ: Изменять название класса и пакета
  */
 public interface EmployeeService {
+
+    Optional<Employee> findByCode(String code);
 }
