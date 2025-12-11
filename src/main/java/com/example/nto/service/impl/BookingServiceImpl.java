@@ -15,12 +15,6 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * TODO: ДОРАБОТАТЬ в рамках задания
- * =================================
- * МОЖНО: Добавлять методы, аннотации, зависимости
- * НЕЛЬЗЯ: Изменять название класса и пакета
- */
 @Service
 @RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
@@ -39,7 +33,7 @@ public class BookingServiceImpl implements BookingService {
         for (Booking booking : bookings) {
             String dateStr = booking.getDate().toString();
             Map<String, Object> info = new HashMap<>();
-            info.put("id", booking.getId());
+            info.put("id", booking.getPlace().getId()); // ID места, а не бронирования!
             info.put("place", booking.getPlace().getPlace());
             bookingMap.put(dateStr, info);
         }
@@ -60,13 +54,13 @@ public class BookingServiceImpl implements BookingService {
             LocalDate date = today.plusDays(i);
             String dateStr = date.toString();
 
-            // Получаем все бронирования на эту дату
+            // Получаем ВСЕ бронирования на эту дату (любых пользователей)
             List<Booking> bookedPlaces = bookingRepository.findByDateBetween(date, date);
             Set<Long> bookedPlaceIds = bookedPlaces.stream()
                     .map(b -> b.getPlace().getId())
                     .collect(Collectors.toSet());
 
-            // Фильтруем свободные места
+            // Фильтруем свободные места (исключаем занятые ЛЮБЫМ пользователем)
             List<Map<String, Object>> availablePlaces = allPlaces.stream()
                     .filter(place -> !bookedPlaceIds.contains(place.getId()))
                     .map(place -> {
